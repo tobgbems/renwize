@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Renwize - Stage 1
 
-## Getting Started
+Renwize is a subscription reminder app built with:
 
-First, run the development server:
+- Next.js App Router (JavaScript)
+- Tailwind CSS
+- NextAuth.js v5
+- Supabase
+
+## 1) Install and run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 2) Supabase setup (database + connection values)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Go to [https://supabase.com](https://supabase.com) and create a new project.
+2. In your project, open **SQL Editor** and run this:
 
-## Learn More
+```sql
+create extension if not exists "pgcrypto";
 
-To learn more about Next.js, take a look at the following resources:
+create table if not exists public.users (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null unique,
+  password_hash text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Go to **Project Settings -> API** and copy:
+   - `Project URL` (for `NEXT_PUBLIC_SUPABASE_URL`)
+   - `service_role` key (for `SUPABASE_SERVICE_ROLE_KEY`)  
+   Keep the service role key secret and only on the server.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 3) Google OAuth setup
 
-## Deploy on Vercel
+1. Open [Google Cloud Console](https://console.cloud.google.com/).
+2. Create/select a project.
+3. Go to **APIs & Services -> OAuth consent screen** and configure it.
+4. Go to **Credentials -> Create Credentials -> OAuth Client ID**.
+5. Choose **Web application**.
+6. Add these redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google`
+   - `https://your-vercel-domain.vercel.app/api/auth/callback/google` (after deploy)
+7. Copy:
+   - Client ID (`AUTH_GOOGLE_ID`)
+   - Client Secret (`AUTH_GOOGLE_SECRET`)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 4) Environment variables (`.env.local`)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
+AUTH_SECRET=
+AUTH_URL=http://localhost:3000
+
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+```
+
+Generate `AUTH_SECRET` with:
+
+```bash
+npx auth secret
+```
+
+## 5) Routes included in Stage 1
+
+- `/` - public marketing landing page
+- `/auth` - sign up / log in page (credentials + Google)
+- `/dashboard` - protected placeholder dashboard
+- `/privacy` and `/terms` - footer placeholder pages
+
+If a user is not logged in, visiting `/dashboard` redirects to `/auth`.
