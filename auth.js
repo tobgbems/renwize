@@ -1,3 +1,8 @@
+/**
+ * NextAuth app config. Session protection for `/dashboard` is applied in the root
+ * `proxy.js` file via `export { auth as proxy }` (Next.js 16+). This module does not
+ * import or reference `middleware.js`; avoid adding a `middleware` import here.
+ */
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
