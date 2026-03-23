@@ -17,14 +17,14 @@ import {
 /**
  * Resolve Supabase user id from session email (JWT stores name/email; id is looked up here).
  */
-async function getUserIdByEmail(supabase, email) {
+async function getUserByEmail(supabase, email) {
   const { data, error } = await supabase
     .from("users")
-    .select("id")
+    .select("id, is_pro, pro_expires_at")
     .eq("email", email.toLowerCase())
     .single();
   if (error || !data) return null;
-  return data.id;
+  return data;
 }
 
 function categoryBadgeClass(category) {
@@ -40,23 +40,27 @@ function categoryBadgeClass(category) {
   return map[k] || map.other;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }) {
   const session = await auth();
   const userName = session?.user?.name || session?.user?.email?.split("@")[0] || "friend";
   const email = session?.user?.email;
+  const upgraded = searchParams?.upgraded === "true";
 
   let subscriptions = [];
   let loadError = null;
+  let isPro = false;
 
   if (email) {
     const supabase = getSupabaseAdmin();
-    const userId = await getUserIdByEmail(supabase, email);
+    const userRow = await getUserByEmail(supabase, email);
 
-    if (userId) {
+    if (userRow?.id) {
+      isPro = Boolean(userRow.is_pro);
+
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
-        .eq("user_id", userId)
+        .eq("user_id", userRow.id)
         .order("next_billing_date", { ascending: true });
 
       if (error) {
@@ -84,9 +88,15 @@ export default async function DashboardPage() {
       <DashboardNav />
 
       <main className="container-width mx-auto flex flex-1 flex-col px-4 py-8 sm:px-6 sm:py-10">
+        {upgraded ? (
+          <p className="mb-6 rounded-xl border border-[#1FA168]/35 bg-[#ECFDF3] px-4 py-3 text-sm font-medium text-[#0F5C3A]">
+            You&apos;re now on Pro! SMS and WhatsApp reminders coming soon.
+          </p>
+        ) : null}
+
         {/* Top: greeting + primary CTA */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <DashboardGreeting userName={userName} />
+          <DashboardGreeting userName={userName} isPro={isPro} />
           <Link
             href="/dashboard/add"
             className="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#1FA168] px-5 py-3 text-center text-sm font-bold text-white shadow-md shadow-[#1FA168]/25 transition hover:opacity-95"
@@ -219,6 +229,22 @@ export default async function DashboardPage() {
             </div>
           )}
         </section>
+
+        {!isPro ? (
+          <section className="mt-10">
+            <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4 text-sm text-[#475569] sm:flex-row sm:items-center sm:justify-between">
+              <p>
+                Upgrade to Pro to unlock SMS and WhatsApp reminders as soon as they launch.
+              </p>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center justify-center rounded-lg border border-[#1FA168]/35 bg-[#ECFDF3] px-3 py-2 font-semibold text-[#0F5C3A] transition hover:bg-[#DFF8EA]"
+              >
+                Upgrade to Pro
+              </Link>
+            </div>
+          </section>
+        ) : null}
       </main>
     </div>
   );
