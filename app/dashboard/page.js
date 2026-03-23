@@ -44,7 +44,8 @@ export default async function DashboardPage({ searchParams }) {
   const session = await auth();
   const userName = session?.user?.name || session?.user?.email?.split("@")[0] || "friend";
   const email = session?.user?.email;
-  const upgraded = searchParams?.upgraded === "true";
+  const resolvedSearchParams = await searchParams;
+  const upgraded = resolvedSearchParams?.upgraded === "true";
 
   let subscriptions = [];
   let loadError = null;
