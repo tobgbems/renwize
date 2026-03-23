@@ -10,6 +10,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tailwind, NextAuth, Supabase). Users manage their own subscription rows in the `subscriptions` table (`user_id` scoped).
 
+- **Production URL:** `https://www.renwize.com` is the primary live domain. `https://renwize.vercel.app` still works, but should be treated as secondary.
+
 ## Repo layout (important paths)
 
 - **`auth.js`** — NextAuth config (credentials + Google). Do not change unless the task is explicitly about auth.
