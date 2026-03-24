@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
-
-const PRO_PRICE_NGN_KOBO = 200000; // NGN 2,000.00
+import { proAmountKoboForBilling } from "@/lib/proPricing";
 
 export const runtime = "nodejs";
 
 /**
  * GET — initializes a one-time Paystack checkout and redirects user to hosted page.
+ * Optional query: `?billing=yearly` for annual Pro (₦20,000); default is monthly (₦2,000).
  */
-export async function GET() {
+export async function GET(request) {
   const session = await auth();
   const email = session?.user?.email?.toLowerCase();
 
@@ -37,6 +37,10 @@ export async function GET() {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
 
+  const billing =
+    request.nextUrl.searchParams.get("billing") === "yearly" ? "yearly" : "monthly";
+  const amountKobo = proAmountKoboForBilling(billing);
+
   const callbackUrl = `${appUrl}/api/payments/verify`;
   const initRes = await fetch("https://api.paystack.co/transaction/initialize", {
     method: "POST",
@@ -46,12 +50,13 @@ export async function GET() {
     },
     body: JSON.stringify({
       email: userRow.email,
-      amount: PRO_PRICE_NGN_KOBO,
+      amount: amountKobo,
       currency: "NGN",
       callback_url: callbackUrl,
       metadata: {
         renwize_user_id: userRow.id,
-        plan: "pro_monthly_one_time",
+        plan: billing === "yearly" ? "pro_yearly_one_time" : "pro_monthly_one_time",
+        billing,
       },
     }),
     cache: "no-store",

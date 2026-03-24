@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-
-const PRO_PRICE_NGN_KOBO = 200000; // NGN 2,000.00
+import { isValidProChargeAmountKobo, proExpiresAtIsoFromAmountKobo } from "@/lib/proPricing";
 
 export const runtime = "nodejs";
 
 /**
- * GET — Paystack callback verification, then activate Pro for 30 days.
+ * GET — Paystack callback verification, then activate Pro (30 days monthly, 365 days yearly).
  */
 export async function GET(request) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
@@ -38,7 +37,7 @@ export async function GET(request) {
     payload?.status === true &&
     tx?.status === "success" &&
     tx?.currency === "NGN" &&
-    Number(tx?.amount) === PRO_PRICE_NGN_KOBO;
+    isValidProChargeAmountKobo(tx?.amount);
 
   if (!paid) {
     return NextResponse.redirect(new URL("/pricing?payment=failed", appUrl));
@@ -49,7 +48,7 @@ export async function GET(request) {
     return NextResponse.redirect(new URL("/pricing?payment=failed", appUrl));
   }
 
-  const proExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const proExpiresAt = proExpiresAtIsoFromAmountKobo(tx.amount);
   const supabase = getSupabaseAdmin();
   const { error: updateErr } = await supabase
     .from("users")

@@ -1,8 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-
-const PRO_PRICE_NGN_KOBO = 200000; // NGN 2,000.00
+import { isValidProChargeAmountKobo, proExpiresAtIsoFromAmountKobo } from "@/lib/proPricing";
 
 export const runtime = "nodejs";
 
@@ -46,7 +45,7 @@ export async function POST(request) {
   const paidPro =
     tx?.status === "success" &&
     tx?.currency === "NGN" &&
-    Number(tx?.amount) === PRO_PRICE_NGN_KOBO;
+    isValidProChargeAmountKobo(tx?.amount);
 
   if (!paidPro) {
     return NextResponse.json({ ok: true, ignored: true }, { status: 200 });
@@ -57,7 +56,7 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, ignored: true }, { status: 200 });
   }
 
-  const proExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const proExpiresAt = proExpiresAtIsoFromAmountKobo(tx.amount);
   const supabase = getSupabaseAdmin();
   const { error: updateErr } = await supabase
     .from("users")
