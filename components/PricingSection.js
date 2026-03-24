@@ -9,8 +9,8 @@ import Link from "next/link";
 export default function PricingSection() {
   const [billing, setBilling] = useState("monthly");
 
-  const proMonthly = 5;
-  const proYearly = 50; // 10 months paid — “save 2 months” vs 12 × $5
+  const proMonthlyLabel = "₦2,000";
+  const proYearlyLabel = "₦20,000";
 
   return (
     <section id="pricing" className="container-width mx-auto px-4 py-16 sm:px-6">
@@ -57,7 +57,7 @@ export default function PricingSection() {
         <article className="flex flex-col rounded-2xl border-2 border-[#E2E8F0] bg-white p-8 shadow-sm transition hover:border-[#CBD5E1]">
           <p className="text-sm font-bold uppercase tracking-wide text-[#1FA168]">Free</p>
           <p className="mt-4 flex items-baseline gap-1">
-            <span className="text-5xl font-bold text-[#1E254A]">$0</span>
+            <span className="text-5xl font-bold text-[#1E254A]">₦0</span>
             <span className="text-[#64748B]">/month</span>
           </p>
           <p className="mt-2 text-sm text-[#64748B]">Email reminders, forever.</p>
@@ -87,7 +87,7 @@ export default function PricingSection() {
           <p className="text-sm font-bold uppercase tracking-wide text-white/90">Pro</p>
           <p className="mt-4 flex items-baseline gap-1">
             <span className="text-5xl font-bold">
-              ${billing === "monthly" ? proMonthly : proYearly}
+              {billing === "monthly" ? proMonthlyLabel : proYearlyLabel}
             </span>
             <span className="text-white/80">
               {billing === "monthly" ? "/month" : "/year"}

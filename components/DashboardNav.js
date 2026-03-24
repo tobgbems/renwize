@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Logo from "@/components/Logo";
 import LogoutButton from "@/components/LogoutButton";
 
 /**
@@ -10,7 +9,14 @@ export default function DashboardNav() {
     <header className="sticky top-0 z-20 border-b border-[#E2E8F0] bg-white/95 backdrop-blur">
       <div className="container-width mx-auto flex items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link href="/" className="inline-flex items-center transition hover:opacity-90" aria-label="Renwize home">
-          <Logo />
+          {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand lockup from public/ */}
+          <img
+            src="/logo-lockup.svg"
+            alt="Renwize"
+            className="h-8 w-auto sm:h-9"
+            width={180}
+            height={58}
+          />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-[#1E254A] lg:flex">
           <Link href="/#features" className="transition hover:text-[#1FA168]">

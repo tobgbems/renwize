@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Logo from "@/components/Logo";
 import HeroPreviewCard from "@/components/HeroPreviewCard";
 import PricingSection from "@/components/PricingSection";
 import FaqSection from "@/components/FaqSection";
@@ -49,7 +48,16 @@ export default function LandingPage() {
       {/* Navbar — same brand; added section anchors + Log in */}
       <header className="sticky top-0 z-20 border-b border-[#E2E8F0] bg-white/95 backdrop-blur">
         <div className="container-width mx-auto flex items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Logo />
+          <Link href="/" className="inline-flex shrink-0" aria-label="Renwize home">
+            {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand lockup from public/ */}
+            <img
+              src="/logo-lockup.svg"
+              alt="Renwize"
+              className="h-8 w-auto sm:h-9"
+              width={180}
+              height={58}
+            />
+          </Link>
           <nav className="hidden items-center gap-6 text-sm font-semibold text-[#1E254A] lg:flex">
             <a href="#features" className="transition hover:text-[#1FA168]">
               Features
@@ -195,7 +203,16 @@ export default function LandingPage() {
         <FooterEmailCapture />
         <div className="container-width mx-auto grid grid-cols-1 items-center gap-6 px-4 py-8 text-sm text-[#64748B] sm:grid-cols-3 sm:gap-4 sm:px-6">
           <div className="flex justify-center sm:justify-start">
-            <Logo />
+            <Link href="/" className="inline-flex" aria-label="Renwize home">
+              {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand lockup from public/ */}
+              <img
+                src="/logo-lockup.svg"
+                alt="Renwize"
+                className="h-7 w-auto opacity-90 sm:h-8"
+                width={160}
+                height={51}
+              />
+            </Link>
           </div>
           <p className="text-center">
             © {new Date().getFullYear()} Renwize. All rights reserved.

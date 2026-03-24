@@ -9,6 +9,9 @@ const dmSans = DM_Sans({
 export const metadata = {
   title: "Renwize",
   description: "Track subscriptions and avoid surprise charges.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
