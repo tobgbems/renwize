@@ -12,6 +12,27 @@ export const metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+  openGraph: {
+    title: "Renwize — Smart Subscription Tracker",
+    description: "Track your subscriptions and get email reminders before you're charged. Works in Naira and USD.",
+    url: "https://www.renwize.com",
+    siteName: "Renwize",
+    images: [
+      {
+        url: "https://www.renwize.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Renwize - Smart Subscription Tracker",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Renwize — Smart Subscription Tracker",
+    description: "Track your subscriptions and get email reminders before you're charged.",
+    images: ["https://www.renwize.com/og-image.png"],
+  },
 };
 
 export default function RootLayout({ children }) {

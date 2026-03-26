@@ -65,10 +65,7 @@ export default function HeroPreviewCard() {
           ))}
         </ul>
 
-        <p className="mt-4 rounded-lg bg-[#F8FAFC] px-3 py-2 text-xs leading-relaxed text-[#64748B]">
-          <span className="font-semibold text-[#1FA168]">Tip:</span> SMS &amp; WhatsApp reminders
-          are coming soon on Pro.
-        </p>
+       
       </div>
     </div>
   );

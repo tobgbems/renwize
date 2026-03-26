@@ -28,7 +28,7 @@ const howItWorksSteps = [
   {
     step: 2,
     title: "Choose your reminder timing",
-    description: "Default is 3 days before—custom options coming later.",
+    description: "Default is 3 days before. Custom options coming later.",
   },
   {
     step: 3,
@@ -102,7 +102,7 @@ export default function LandingPage() {
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-[#334155]">
                 Renwize tracks all your subscriptions and sends you email reminders 3 days before
-                you&apos;re charged. Free forever for email reminders.
+                you&apos;re charged.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold text-[#1E254A] sm:text-4xl">Features</h2>
               <p className="mt-3 text-[#64748B]">
-                Everything you need to see renewals coming—before your card is charged.
+                Everything you need to see renewals coming, before your card is charged.
               </p>
             </div>
             <div className="mt-12 grid gap-6 md:grid-cols-3">

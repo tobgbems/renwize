@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: "Do I need to add my subscriptions manually?",
-    a: "Yes. You add each subscription yourself—name, amount, renewal date, and billing cycle—so you always know what is on your list and stay in control.",
+    a: "Yes. You add each subscription yourself: name, amount, renewal date, and billing cycle, so you always know what is on your list and stay in control.",
   },
   {
     q: "How far in advance will I be reminded?",
@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: "Is my data private?",
-    a: "We only store what you enter to run reminders. We do not sell your data, and we do not connect to your bank in Stage 1.",
+    a: "We only store what you enter to run reminders. We do not sell your data, and we do not connect to your bank at this time.",
   },
 ];
 
