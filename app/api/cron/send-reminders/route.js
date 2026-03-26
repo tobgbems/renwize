@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { sendBillingReminders } from "@/lib/reminders";
+import {
+  getUtcDateStringDaysFromToday,
+  rolloverBillingDate,
+  sendBillingReminders,
+} from "@/lib/reminders";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -23,10 +28,30 @@ export async function GET(request) {
 
   try {
     const { sent, targetDate, failed } = await sendBillingReminders();
+    const supabase = getSupabaseAdmin();
+    const today = getUtcDateStringDaysFromToday(0);
+    const { data: dueSubs, error: dueErr } = await supabase
+      .from("subscriptions")
+      .select("id, next_billing_date, billing_cycle")
+      .lte("next_billing_date", today);
+
+    if (dueErr) {
+      throw new Error(dueErr.message);
+    }
+
+    let rolledOver = 0;
+    for (const sub of dueSubs || []) {
+      await rolloverBillingDate(sub);
+      rolledOver += 1;
+    }
+
+    console.log(`[cron] Rolled over ${rolledOver} subscriptions`);
+
     return NextResponse.json({
       ok: true,
       sent,
       targetDate,
+      rolledOver,
       failedCount: failed.length,
       ...(failed.length ? { failed } : {}),
     });
