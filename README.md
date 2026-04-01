@@ -31,6 +31,9 @@ create table if not exists public.users (
   password_hash text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+alter table if exists public.subscriptions
+add column if not exists remind_to_cancel boolean not null default false;
 ```
 
 3. Go to **Project Settings -> API** and copy:

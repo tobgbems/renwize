@@ -39,7 +39,9 @@ export default async function EditSubscriptionPage({ params }) {
 
   const { data: subscription, error } = await supabase
     .from("subscriptions")
-    .select("*")
+    .select(
+      "id, name, amount, currency, billing_cycle, next_billing_date, category, notes, remind_to_cancel",
+    )
     .eq("id", id)
     .eq("user_id", userId)
     .maybeSingle();

@@ -197,11 +197,18 @@ export default async function DashboardPage({ searchParams }) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-base font-bold text-[#1E254A]">{s.name}</h3>
-                    <span
-                      className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${categoryBadgeClass(s.category)}`}
-                    >
-                      {formatCategoryLabel(s.category)}
-                    </span>
+                    <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                      {s.remind_to_cancel ? (
+                        <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200">
+                          Remind to cancel
+                        </span>
+                      ) : null}
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${categoryBadgeClass(s.category)}`}
+                      >
+                        {formatCategoryLabel(s.category)}
+                      </span>
+                    </div>
                   </div>
                   <p className="mt-3 text-2xl font-bold tabular-nums text-[#1E254A]">
                     {formatMoney(s.amount, s.currency)}

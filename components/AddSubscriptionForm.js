@@ -132,6 +132,23 @@ export default function AddSubscriptionForm() {
         />
       </div>
 
+      <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+        <label className="flex cursor-pointer items-start gap-3 text-sm text-[#1E254A]">
+          <input
+            id="remind_to_cancel"
+            name="remind_to_cancel"
+            type="checkbox"
+            className="mt-1 h-4 w-4 rounded border-[#CBD5E1] text-[#1FA168] focus:ring-[#1FA168]/30"
+          />
+          <span>
+            <span className="block font-semibold">Remind to cancel</span>
+            <span className="block text-[#64748B]">
+              Useful for free trials or temporary subscriptions you plan to stop.
+            </span>
+          </span>
+        </label>
+      </div>
+
       <div className="flex flex-col-reverse gap-3 border-t border-[#F1F5F9] pt-6 sm:flex-row sm:justify-end">
         <button
           type="submit"
