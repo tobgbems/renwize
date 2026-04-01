@@ -17,12 +17,15 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **`auth.js`** — NextAuth config (credentials + Google). Do not change unless the task is explicitly about auth.
 - **`proxy.js`** — Next.js 16 root handler; re-exports `auth as proxy` for `/dashboard/*` protection. Do not rename or replace with `middleware.js` alongside it (Next forbids both).
 - **`lib/supabase.js`** — `getSupabaseAdmin()` (service role). Used server-side for DB access.
-- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`) kept outside `app/` to reduce Turbopack HMR churn.
+- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
 - **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, emails users via Resend.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
 - **`app/api/cron/send-reminders/route.js`** — `GET`, protected by `Authorization: Bearer CRON_SECRET`; calls `sendBillingReminders()`.
 - **`vercel.json`** — Daily cron at 08:00 UTC → `/api/cron/send-reminders` (Vercel sends `Bearer` when `CRON_SECRET` is set in project env).
-- **`app/dashboard/`** — Dashboard, add (`/dashboard/add`), edit (`/dashboard/edit/[id]`).
+- **`app/dashboard/page.js`** — Primary dashboard route; section-driven UI via query params.
+- **`components/DashboardSidebar.js`** — Sidebar tabs for `overview`, `subscriptions`, `settings`.
+- **`components/ProfileSettingsForm.js`** — Profile settings UI (name + phone number).
+- **`app/dashboard/add/page.js`** and **`app/dashboard/edit/[id]/page.js`** — legacy deep links that redirect to modal URLs on dashboard.
 
 ## Conventions
 
@@ -30,11 +33,15 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Session → user id:** JWT exposes name/email; resolve Supabase `users.id` by `session.user.email` when filtering or inserting `subscriptions`.
 - **Forms:** Client forms use `onSubmit` + `useTransition` calling server actions (avoid `useActionState` here due to past dev/HMR issues).
 - **Imports:** `formatMoney` and related helpers live in `lib/subscriptionDisplay.js` — import them in any page that formats currency.
+- **Dashboard sections:** Keep dashboard views under `/dashboard?section=overview|subscriptions|settings` for consistent layout + URL behavior.
+- **Subscription add/edit UX:** Use dashboard modals (`modal=add`, `modal=edit&id=...`) instead of standalone add/edit pages.
+- **Date inputs:** Subscription forms use native `type="date"` with `min=today` (no past dates).
 
 ## Email reminders (Resend + cron)
 
 - **Env:** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CRON_SECRET` (plus existing Supabase vars). See Resend docs for free-tier limits (verified recipients / verified domain).
 - **Logic:** One email per matching subscription row; amount formatting uses `lib/subscriptionDisplay.js` (`formatMoney`, `formatDate`).
+- **Cancel reminder flag:** If `subscriptions.remind_to_cancel` is true, reminder emails must include cancel guidance text.
 
 ## What not to touch without explicit instruction
 

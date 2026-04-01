@@ -6,6 +6,10 @@
 - **Cron:** Production only; schedule in `vercel.json`. Secure the handler with `CRON_SECRET` and `Authorization: Bearer …`.
 - **When editing reminders:** Prefer `lib/reminders.js` + `lib/emailTemplate.js`; keep `getSupabaseAdmin()` from `lib/supabase.js` for server-side queries.
 - **Production URL:** `https://www.renwize.com` is the primary live domain. `https://renwize.vercel.app` still works, but is secondary.
+- **Dashboard routing:** Use section URLs on dashboard (`/dashboard?section=overview|subscriptions|settings`) and keep add/edit in modal state (`modal=add` / `modal=edit&id=...`).
+- **Profile settings:** Name + phone are managed from dashboard settings using `components/ProfileSettingsForm.js` + `lib/actions/updateProfileSettings.js`.
+- **Subscription dates:** Keep native date picker with no past selection (`min=today`) for add/edit subscription forms.
+- **Cancel reminders:** `subscriptions.remind_to_cancel` should be reflected in both card badges and reminder email copy.
 
 ## Project status
 

@@ -32,6 +32,9 @@ create table if not exists public.users (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+alter table if exists public.users
+add column if not exists phone_number text;
+
 alter table if exists public.subscriptions
 add column if not exists remind_to_cancel boolean not null default false;
 ```

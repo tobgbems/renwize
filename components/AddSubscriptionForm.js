@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { createSubscription } from "@/lib/actions/createSubscription";
 
 const inputClass =
@@ -8,26 +9,49 @@ const inputClass =
 
 const labelClass = "block text-sm font-semibold text-[#1E254A]";
 
+function getTodayIsoDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 /**
  * Add-subscription form — calls the server action on submit.
  * Uses onSubmit + useTransition instead of useActionState to avoid Turbopack HMR races
  * ("Router action dispatched before initialization") seen with dev fast refresh.
  */
-export default function AddSubscriptionForm() {
+export default function AddSubscriptionForm({ redirectTo = "/dashboard?section=subscriptions" }) {
   const [error, setError] = useState(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const todayIso = getTodayIsoDate();
 
   function handleSubmit(e) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const pickedDate = formData.get("next_billing_date")?.toString().trim() ?? "";
     setError(null);
+
+    if (!pickedDate || !/^\d{4}-\d{2}-\d{2}$/.test(pickedDate)) {
+      setError("Please choose a valid next billing date.");
+      return;
+    }
+    if (pickedDate < todayIso) {
+      setError("Next billing date cannot be in the past.");
+      return;
+    }
 
     startTransition(async () => {
       const result = await createSubscription(formData);
       if (result?.error) {
         setError(result.error);
+        return;
       }
+      router.push(redirectTo);
+      router.refresh();
     });
   }
 
@@ -101,7 +125,15 @@ export default function AddSubscriptionForm() {
           <label htmlFor="next_billing_date" className={labelClass}>
             Next billing date
           </label>
-          <input id="next_billing_date" name="next_billing_date" type="date" required className={inputClass} />
+          <input
+            id="next_billing_date"
+            name="next_billing_date"
+            type="date"
+            required
+            min={todayIso}
+            lang="en-GB"
+            className={inputClass}
+          />
         </div>
       </div>
 
