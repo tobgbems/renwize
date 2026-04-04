@@ -29,3 +29,15 @@ alter table public.users enable row level security;
 
 -- Re-grant usage on schema if needed for other objects (usually unchanged for service_role):
 -- grant usage on schema public to postgres, anon, authenticated, service_role;
+
+-- -----------------------------------------------------------------------------
+-- Troubleshooting — empty dashboard after RLS (data exists but app shows $0 / 0 subs)
+-- -----------------------------------------------------------------------------
+-- The app must use the service_role JWT in SUPABASE_SERVICE_ROLE_KEY (Vercel / host env).
+-- If the anon key is pasted there, RLS hides rows; getSupabaseAdmin() now throws if role ≠ service_role.
+-- Redeploy after fixing env vars.
+
+-- Replace email / user id and run in SQL Editor to confirm data is still present:
+
+-- select id, email from public.users where lower(email) = lower('you@example.com');
+-- select count(*) from public.subscriptions where user_id = '00000000-0000-0000-0000-000000000000';

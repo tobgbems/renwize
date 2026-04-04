@@ -16,8 +16,14 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 
 - **`auth.js`** — NextAuth config (credentials + Google). Do not change unless the task is explicitly about auth.
 - **`proxy.js`** — Next.js 16 root handler; re-exports `auth as proxy` for `/dashboard/*` protection. Do not rename or replace with `middleware.js` alongside it (Next forbids both).
-- **`lib/supabase.js`** — `getSupabaseAdmin()` (service role). Used server-side for DB access; service role bypasses RLS.
+- **`lib/supabase.js`** — `getSupabaseAdmin()` (service role). Used server-side for DB access; service role bypasses RLS. The key is validated so a mis-pasted **anon** key throws instead of producing an empty dashboard.
 - **`enable_rls_users_subscriptions.sql`** — Production: RLS enabled on `public.users` and `public.subscriptions`. No anon/browser Supabase client in this repo; do not disable RLS without a replacement access model.
+
+## Supabase troubleshooting (RLS + empty dashboard)
+
+- **Symptom:** Logged in via NextAuth, greeting shows, but totals are $0 / 0 subscriptions and “No subscriptions match your current filters.” Session name comes from NextAuth; subscription data requires a `users` row from Supabase. If `SUPABASE_SERVICE_ROLE_KEY` is the **anon** key, RLS returns no rows (no query error).
+- **Fix:** In Supabase → **Project Settings → API**, copy **`service_role`** (secret) into **`SUPABASE_SERVICE_ROLE_KEY`** on Vercel (or your host), not the anon `public` key. Match **`NEXT_PUBLIC_SUPABASE_URL`** to the same project. **Redeploy** after changing env vars.
+- **Verify data:** See commented queries at the bottom of `enable_rls_users_subscriptions.sql`.
 - **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
 - **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, emails users via Resend.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
