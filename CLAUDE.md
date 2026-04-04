@@ -5,6 +5,7 @@
 - **Stack:** Next.js App Router (JS only), NextAuth, Supabase, Tailwind, Resend for transactional email.
 - **Cron:** Production only; schedule in `vercel.json`. Secure the handler with `CRON_SECRET` and `Authorization: Bearer …`.
 - **When editing reminders:** Prefer `lib/reminders.js` + `lib/emailTemplate.js`; keep `getSupabaseAdmin()` from `lib/supabase.js` for server-side queries.
+- **Supabase RLS:** `public.users` and `public.subscriptions` use Row Level Security in production. The app only uses the service role server-side (`getSupabaseAdmin()`), which bypasses RLS, so dashboard and cron behavior are unchanged. Repeatable SQL (inspect policies, enable RLS, optional revokes) lives in `enable_rls_users_subscriptions.sql`.
 - **Production URL:** `https://www.renwize.com` is the primary live domain. `https://renwize.vercel.app` still works, but is secondary.
 - **Dashboard routing:** Use section URLs on dashboard (`/dashboard?section=overview|subscriptions|settings`) and keep add/edit in modal state (`modal=add` / `modal=edit&id=...`).
 - **Profile settings:** Name + phone are managed from dashboard settings using `components/ProfileSettingsForm.js` + `lib/actions/updateProfileSettings.js`.

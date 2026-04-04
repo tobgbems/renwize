@@ -16,7 +16,8 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 
 - **`auth.js`** — NextAuth config (credentials + Google). Do not change unless the task is explicitly about auth.
 - **`proxy.js`** — Next.js 16 root handler; re-exports `auth as proxy` for `/dashboard/*` protection. Do not rename or replace with `middleware.js` alongside it (Next forbids both).
-- **`lib/supabase.js`** — `getSupabaseAdmin()` (service role). Used server-side for DB access.
+- **`lib/supabase.js`** — `getSupabaseAdmin()` (service role). Used server-side for DB access; service role bypasses RLS.
+- **`enable_rls_users_subscriptions.sql`** — Production: RLS enabled on `public.users` and `public.subscriptions`. No anon/browser Supabase client in this repo; do not disable RLS without a replacement access model.
 - **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
 - **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, emails users via Resend.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
