@@ -7,31 +7,33 @@ const dmSans = DM_Sans({
 });
 
 export const metadata = {
-  title: "Renwize",
-  description: "Track subscriptions and avoid surprise charges.",
+  metadataBase: new URL("https://renwize.com"),
+  verification: {
+    google: "3fZvPmudiTzMOI4O82tKluiYDhMyJ1UUw1c-IeEdi7Q",
+  },
+  title: {
+    default: "Renwize — Subscription tracker & renewal reminders",
+    template: "%s | Renwize",
+  },
+  description:
+    "Track subscriptions in Naira and USD, see what you spend, and get email reminders before renewals so you are never surprised by charges.",
   icons: {
     icon: "/favicon.svg",
   },
   openGraph: {
-    title: "Renwize — Smart Subscription Tracker",
-    description: "Track your subscriptions and get email reminders before you're charged. Works in Naira and USD.",
-    url: "https://www.renwize.com",
+    title: "Renwize — Subscription tracker & renewal reminders",
+    description:
+      "Track your subscriptions and get email reminders before you are charged. Works in Naira and USD.",
+    url: "https://renwize.com",
     siteName: "Renwize",
-    images: [
-      {
-        url: "https://www.renwize.com/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Renwize - Smart Subscription Tracker",
-      },
-    ],
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Renwize — Smart Subscription Tracker",
-    description: "Track your subscriptions and get email reminders before you're charged.",
-    images: ["https://www.renwize.com/og-image.png"],
+    title: "Renwize — Subscription tracker & renewal reminders",
+    description:
+      "Track your subscriptions and get email reminders before you are charged. Works in Naira and USD.",
   },
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function AuthForm() {
@@ -106,9 +107,19 @@ export default function AuthForm() {
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-[#1E254A]">
-            Password
-          </label>
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <label htmlFor="password" className="block text-sm font-medium text-[#1E254A]">
+              Password
+            </label>
+            {!isSignup ? (
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm font-semibold text-[#1FA168] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            ) : null}
+          </div>
           <input
             id="password"
             type="password"
