@@ -5,10 +5,11 @@ import DashboardNav from "@/components/DashboardNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import BottomNav from "@/components/BottomNav";
 import DashboardGreeting from "@/components/DashboardGreeting";
-import DeleteSubscriptionButton from "@/components/DeleteSubscriptionButton";
 import ProfileSettingsForm from "@/components/ProfileSettingsForm";
+import CardsSettingsPanel from "@/components/CardsSettingsPanel";
 import AddSubscriptionForm from "@/components/AddSubscriptionForm";
 import EditSubscriptionForm from "@/components/EditSubscriptionForm";
+import SubscriptionDetailModal from "@/components/SubscriptionDetailModal";
 import {
   formatMoney,
   formatCategoryLabel,
@@ -52,6 +53,11 @@ function normalizeSection(section) {
   if (section === "subscriptions") return "subscriptions";
   if (section === "settings") return "settings";
   return "overview";
+}
+
+function normalizeSettingsTab(tab) {
+  if (tab === "cards") return "cards";
+  return "profile";
 }
 
 function parseFilterState(searchParams) {
@@ -114,50 +120,41 @@ function SubscriptionCards({ subscriptions, section }) {
   return (
     <div className="mt-4 grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
       {subscriptions.map((s) => (
-        <article
-          key={s.id}
-          className="flex min-w-0 flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition hover:border-[#1FA168]/30 hover:shadow-md"
-        >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-            <h3 className="min-w-0 flex-1 truncate text-base font-bold text-[#1E254A]" title={s.name}>
-              {s.name}
-            </h3>
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-              {s.remind_to_cancel ? (
-                <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200">
-                  Remind to cancel
+        <Link key={s.id} href={`/dashboard?section=${section}&modal=details&id=${s.id}`} className="group">
+          <article className="flex min-w-0 flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition group-hover:border-[#1FA168]/30 group-hover:shadow-md">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+              <h3 className="min-w-0 flex-1 truncate text-base font-bold text-[#1E254A]" title={s.name}>
+                {s.name}
+              </h3>
+              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                {s.remind_to_cancel ? (
+                  <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200">
+                    Remind to cancel
+                  </span>
+                ) : null}
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${categoryBadgeClass(s.category)}`}
+                >
+                  {formatCategoryLabel(s.category)}
                 </span>
-              ) : null}
-              <span
-                className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${categoryBadgeClass(s.category)}`}
-              >
-                {formatCategoryLabel(s.category)}
-              </span>
+              </div>
             </div>
-          </div>
-          <p className="mt-3 text-2xl font-bold tabular-nums text-[#1E254A]">
-            {formatMoney(s.amount, s.currency)}
-          </p>
-          <dl className="mt-3 space-y-1 text-sm text-[#64748B]">
-            <div className="flex justify-between gap-2">
-              <dt>Billing</dt>
-              <dd className="font-medium text-[#1E254A]">{billingCycleLabel(s.billing_cycle)}</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt>Next renewal</dt>
-              <dd className="font-medium text-[#1E254A]">{formatDate(s.next_billing_date)}</dd>
-            </div>
-          </dl>
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-[#F1F5F9] pt-4">
-            <Link
-              href={`/dashboard?section=${section}&modal=edit&id=${s.id}`}
-              className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-sm font-semibold text-[#1E254A] transition hover:border-[#1FA168]/40 hover:bg-white"
-            >
-              Edit
-            </Link>
-            <DeleteSubscriptionButton subscriptionId={s.id} subscriptionName={s.name} />
-          </div>
-        </article>
+            <p className="mt-3 text-2xl font-bold tabular-nums text-[#1E254A]">
+              {formatMoney(s.amount, s.currency)}
+            </p>
+            <dl className="mt-3 space-y-1 text-sm text-[#64748B]">
+              <div className="flex justify-between gap-2">
+                <dt>Billing</dt>
+                <dd className="font-medium text-[#1E254A]">{billingCycleLabel(s.billing_cycle)}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt>Next renewal</dt>
+                <dd className="font-medium text-[#1E254A]">{formatDate(s.next_billing_date)}</dd>
+              </div>
+            </dl>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-[#1FA168]">View details</p>
+          </article>
+        </Link>
       ))}
     </div>
   );
@@ -169,11 +166,13 @@ export default async function DashboardPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const upgraded = resolvedSearchParams?.upgraded === "true";
   const section = normalizeSection(resolvedSearchParams?.section);
+  const settingsTab = normalizeSettingsTab(resolvedSearchParams?.settings_tab);
   const filters = parseFilterState(resolvedSearchParams || {});
   const modal = resolvedSearchParams?.modal;
   const modalSubscriptionId = resolvedSearchParams?.id?.toString() || "";
   const isAddModalOpen = modal === "add";
   const isEditModalOpen = modal === "edit" && Boolean(modalSubscriptionId);
+  const isDetailsModalOpen = modal === "details" && Boolean(modalSubscriptionId);
 
   let subscriptions = [];
   let loadError = null;
@@ -181,6 +180,7 @@ export default async function DashboardPage({ searchParams }) {
   let profileName = session?.user?.name || "";
   let profileEmail = email || "";
   let profilePhoneNumber = "";
+  let cards = [];
 
   if (email) {
     const supabase = getSupabaseAdmin();
@@ -194,7 +194,7 @@ export default async function DashboardPage({ searchParams }) {
 
       const { data, error } = await supabase
         .from("subscriptions")
-        .select("*")
+        .select("*, cards(*)")
         .eq("user_id", userRow.id)
         .order("next_billing_date", { ascending: true });
 
@@ -202,6 +202,18 @@ export default async function DashboardPage({ searchParams }) {
         loadError = error.message;
       } else {
         subscriptions = data || [];
+      }
+
+      const { data: cardsData, error: cardsErr } = await supabase
+        .from("cards")
+        .select("id, label, network, last_four, created_at")
+        .eq("user_id", userRow.id)
+        .order("created_at", { ascending: true });
+
+      if (cardsErr) {
+        loadError = loadError || cardsErr.message;
+      } else {
+        cards = cardsData || [];
       }
     }
   }
@@ -224,6 +236,10 @@ export default async function DashboardPage({ searchParams }) {
   const greetingName = profileName || session?.user?.email?.split("@")[0] || "friend";
   const editingSubscription =
     isEditModalOpen && modalSubscriptionId
+      ? subscriptions.find((s) => s.id === modalSubscriptionId) || null
+      : null;
+  const detailSubscription =
+    isDetailsModalOpen && modalSubscriptionId
       ? subscriptions.find((s) => s.id === modalSubscriptionId) || null
       : null;
   const baseSectionHref = `/dashboard?section=${section}`;
@@ -249,7 +265,7 @@ export default async function DashboardPage({ searchParams }) {
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-[#1E254A] sm:text-3xl">Settings</h1>
                 <p className="mt-1 text-sm text-[#64748B]">
-                  Manage your profile details for future reminder channels.
+                  Manage your profile details and saved payment cards.
                 </p>
               </div>
             ) : (
@@ -439,18 +455,51 @@ export default async function DashboardPage({ searchParams }) {
           ) : (
             <section className="mt-8">
               <div className="max-w-3xl rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
-                <h2 className="text-lg font-bold text-[#1E254A]">Profile settings</h2>
-                <p className="mt-1 text-sm text-[#64748B]">
-                  You can update your name and phone number here.
-                </p>
-
-                <div className="mt-6">
-                  <ProfileSettingsForm
-                    initialName={profileName}
-                    initialPhoneNumber={profilePhoneNumber}
-                    email={profileEmail}
-                  />
+                <div className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-1">
+                  <Link
+                    href="/dashboard?section=settings&settings_tab=profile"
+                    className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                      settingsTab === "profile"
+                        ? "bg-white text-[#1E254A] shadow-sm"
+                        : "text-[#64748B] hover:text-[#1E254A]"
+                    }`}
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/dashboard?section=settings&settings_tab=cards"
+                    className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                      settingsTab === "cards"
+                        ? "bg-white text-[#1E254A] shadow-sm"
+                        : "text-[#64748B] hover:text-[#1E254A]"
+                    }`}
+                  >
+                    Cards
+                  </Link>
                 </div>
+
+                {settingsTab === "cards" ? (
+                  <div className="mt-6">
+                    <p className="mb-4 text-sm text-[#64748B]">
+                      Save card details to quickly attach them to subscriptions.
+                    </p>
+                    <CardsSettingsPanel initialCards={cards} />
+                  </div>
+                ) : (
+                  <div className="mt-6">
+                    <h2 className="text-lg font-bold text-[#1E254A]">Profile settings</h2>
+                    <p className="mt-1 text-sm text-[#64748B]">
+                      You can update your name and phone number here.
+                    </p>
+                    <div className="mt-6">
+                      <ProfileSettingsForm
+                        initialName={profileName}
+                        initialPhoneNumber={profilePhoneNumber}
+                        email={profileEmail}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -469,6 +518,14 @@ export default async function DashboardPage({ searchParams }) {
             </section>
           ) : null}
         </div>
+
+        {isDetailsModalOpen ? (
+          <SubscriptionDetailModal
+            subscription={detailSubscription}
+            closeHref={baseSectionHref}
+            section={section}
+          />
+        ) : null}
 
         {isAddModalOpen || isEditModalOpen ? (
           <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0F172A]/45 p-4 sm:p-8">
@@ -497,9 +554,13 @@ export default async function DashboardPage({ searchParams }) {
                   Subscription not found.
                 </p>
               ) : isEditModalOpen ? (
-                <EditSubscriptionForm subscription={editingSubscription} redirectTo={baseSectionHref} />
+                <EditSubscriptionForm
+                  subscription={editingSubscription}
+                  cards={cards}
+                  redirectTo={baseSectionHref}
+                />
               ) : (
-                <AddSubscriptionForm redirectTo={baseSectionHref} />
+                <AddSubscriptionForm cards={cards} redirectTo={baseSectionHref} />
               )}
             </div>
           </div>

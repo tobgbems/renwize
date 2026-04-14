@@ -151,9 +151,27 @@ export default function AuthForm() {
       <button
         onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
         type="button"
-        className="w-full rounded-lg border border-[#CBD5E1] px-4 py-2 font-semibold text-[#1E254A] transition hover:bg-[#F8FAFC]"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#dadce0] bg-white px-4 py-2 font-semibold text-[#3c4043] transition hover:border-[#c7c9cc] hover:shadow-sm"
       >
-        Continue with Google
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M23.49 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h6.44a5.5 5.5 0 0 1-2.39 3.61v3h3.86c2.26-2.08 3.58-5.14 3.58-8.64z"
+            fill="#4285F4"
+          />
+          <path
+            d="M12 24c3.24 0 5.96-1.08 7.94-2.92l-3.86-3c-1.08.72-2.46 1.15-4.08 1.15-3.13 0-5.78-2.11-6.72-4.95H1.3v3.1A12 12 0 0 0 12 24z"
+            fill="#34A853"
+          />
+          <path
+            d="M5.28 14.28a7.2 7.2 0 0 1 0-4.56v-3.1H1.3a12 12 0 0 0 0 10.76l3.98-3.1z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M12 4.77c1.76 0 3.34.6 4.58 1.79l3.43-3.43C17.95 1.19 15.23 0 12 0A12 12 0 0 0 1.3 6.62l3.98 3.1c.94-2.84 3.59-4.95 6.72-4.95z"
+            fill="#EA4335"
+          />
+        </svg>
+        <span>Continue with Google</span>
       </button>
     </div>
   );

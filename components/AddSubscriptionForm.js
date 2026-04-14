@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createSubscription } from "@/lib/actions/createSubscription";
+import PaymentCardField from "@/components/PaymentCardField";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#1E254A] shadow-sm outline-none transition placeholder:text-[#94A3B8] focus:border-[#1FA168] focus:ring-2 focus:ring-[#1FA168]/20";
@@ -22,7 +23,7 @@ function getTodayIsoDate() {
  * Uses onSubmit + useTransition instead of useActionState to avoid Turbopack HMR races
  * ("Router action dispatched before initialization") seen with dev fast refresh.
  */
-export default function AddSubscriptionForm({ redirectTo = "/dashboard?section=subscriptions" }) {
+export default function AddSubscriptionForm({ cards = [], redirectTo = "/dashboard?section=subscriptions" }) {
   const [error, setError] = useState(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -163,6 +164,8 @@ export default function AddSubscriptionForm({ redirectTo = "/dashboard?section=s
           className={`${inputClass} resize-y min-h-[100px]`}
         />
       </div>
+
+      <PaymentCardField cards={cards} />
 
       <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
         <label className="flex cursor-pointer items-start gap-3 text-sm text-[#1E254A]">

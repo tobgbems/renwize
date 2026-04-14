@@ -39,9 +39,11 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **No TypeScript** in this project.
 - **Session → user id:** JWT exposes name/email; resolve Supabase `users.id` by `session.user.email` when filtering or inserting `subscriptions`.
 - **Forms:** Client forms use `onSubmit` + `useTransition` calling server actions (avoid `useActionState` here due to past dev/HMR issues).
+- **Nested form guardrail:** Do not nest a `<form>` inside another `<form>` in dashboard modals. For inline sub-flows (for example, add-card inside add-subscription), use local state + `type="button"` handlers instead.
 - **Imports:** `formatMoney` and related helpers live in `lib/subscriptionDisplay.js` — import them in any page that formats currency.
 - **Dashboard sections:** Keep dashboard views under `/dashboard?section=overview|subscriptions|settings` for consistent layout + URL behavior.
 - **Subscription add/edit UX:** Use dashboard modals (`modal=add`, `modal=edit&id=...`) instead of standalone add/edit pages.
+- **Edit from details modal:** Link directly to dashboard modal query state (`/dashboard?section=...&modal=edit&id=...`) to avoid a double-navigation flash via legacy `/dashboard/edit/[id]` redirects.
 - **Date inputs:** Subscription forms use native `type="date"` with `min=today` (no past dates).
 
 ## Email reminders (Resend + cron)

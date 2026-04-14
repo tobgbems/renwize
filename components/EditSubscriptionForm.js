@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateSubscription } from "@/lib/actions/updateSubscription";
+import PaymentCardField from "@/components/PaymentCardField";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#1E254A] shadow-sm outline-none transition placeholder:text-[#94A3B8] focus:border-[#1FA168] focus:ring-2 focus:ring-[#1FA168]/20";
@@ -22,6 +23,7 @@ function getTodayIsoDate() {
  */
 export default function EditSubscriptionForm({
   subscription,
+  cards = [],
   redirectTo = "/dashboard?section=subscriptions",
 }) {
   const [error, setError] = useState(null);
@@ -189,6 +191,8 @@ export default function EditSubscriptionForm({
           className={`${inputClass} resize-y min-h-[100px]`}
         />
       </div>
+
+      <PaymentCardField cards={cards} initialCardId={subscription.card_id || ""} />
 
       <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
         <label className="flex cursor-pointer items-start gap-3 text-sm text-[#1E254A]">
