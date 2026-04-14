@@ -263,7 +263,7 @@ export default async function DashboardPage({ searchParams }) {
         <div className="min-w-0 flex-1">
           {upgraded ? (
             <p className="mb-6 rounded-xl border border-[#1FA168]/35 bg-[#ECFDF3] px-4 py-3 text-sm font-medium text-[#0F5C3A]">
-              You&apos;re now on Pro! SMS and WhatsApp reminders coming soon.
+              You&apos;re now on Pro! SMS and WhatsApp reminders are now active.
             </p>
           ) : null}
 
@@ -516,7 +516,7 @@ export default async function DashboardPage({ searchParams }) {
           {!isPro ? (
             <section className="mt-10">
               <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-4 text-sm text-[#475569] sm:flex-row sm:items-center sm:justify-between">
-                <p>Upgrade to Pro to unlock SMS and WhatsApp reminders as soon as they launch.</p>
+                <p>Upgrade to Pro to unlock SMS and WhatsApp reminders.</p>
                 <Link
                   href="/pricing"
                   className="inline-flex items-center justify-center rounded-lg border border-[#1FA168]/35 bg-[#ECFDF3] px-3 py-2 font-semibold text-[#0F5C3A] transition hover:bg-[#DFF8EA]"

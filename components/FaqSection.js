@@ -5,7 +5,7 @@ import { useState } from "react";
 const faqs = [
   {
     q: "Is Renwize free?",
-    a: "Yes. Email reminders and tracking unlimited subscriptions on the Free plan are free forever. Optional paid tiers will add channels like SMS and WhatsApp when they launch.",
+    a: "Yes. Email reminders and tracking unlimited subscriptions on the Free plan are free forever. Pro unlocks additional channels like SMS and WhatsApp reminders.",
   },
   {
     q: "Do I need to add my subscriptions manually?",

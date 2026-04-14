@@ -85,11 +85,11 @@ export default function PricingPagePlans() {
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-              SMS reminders (coming soon)
+              SMS reminders
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-              WhatsApp reminders (coming soon)
+              WhatsApp reminders
             </li>
           </ul>
           <Link

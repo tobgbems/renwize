@@ -82,7 +82,7 @@ export default function ProfileSettingsForm({ initialName, initialPhoneNumber, e
             className={inputClass}
           />
           <p className="mt-1.5 text-xs text-[#64748B]">
-            Used for SMS and WhatsApp reminders when they launch.
+            Used for SMS and WhatsApp reminders on your Pro plan.
           </p>
         </div>
       </div>

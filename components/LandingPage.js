@@ -15,7 +15,7 @@ const features = [
   },
   {
     title: "Free to start",
-    description: "Email reminders are free forever. SMS and WhatsApp reminders are coming soon.",
+    description: "Email reminders are free forever. SMS and WhatsApp reminders are available on Pro.",
   },
 ];
 
