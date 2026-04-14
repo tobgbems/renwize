@@ -34,17 +34,18 @@ export default function BottomNav() {
       ),
     },
     {
-      href: "/dashboard?section=subscriptions&modal=add",
-      label: "Add",
+      href: "/dashboard?section=subscriptions",
+      label: "Subs",
       active:
-        pathname === "/dashboard/add" ||
-        (pathname === "/dashboard" && searchParams.get("modal") === "add"),
+        pathname === "/dashboard/subscriptions" ||
+        pathname.startsWith("/dashboard/edit/") ||
+        (pathname === "/dashboard" && section === "subscriptions"),
       icon: (
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
           <path
-            d="M12 5v14M5 12h14"
+            d="M4.5 7.5h15M4.5 12h15M4.5 16.5h15"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

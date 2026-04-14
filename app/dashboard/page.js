@@ -120,7 +120,12 @@ function SubscriptionCards({ subscriptions, section }) {
   return (
     <div className="mt-4 grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
       {subscriptions.map((s) => (
-        <Link key={s.id} href={`/dashboard?section=${section}&modal=details&id=${s.id}`} className="group">
+        <Link
+          key={s.id}
+          href={`/dashboard?section=${section}&modal=details&id=${s.id}`}
+          scroll={false}
+          className="group"
+        >
           <article className="flex min-w-0 flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition group-hover:border-[#1FA168]/30 group-hover:shadow-md">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <h3 className="min-w-0 flex-1 truncate text-base font-bold text-[#1E254A]" title={s.name}>
@@ -246,10 +251,14 @@ export default async function DashboardPage({ searchParams }) {
 
   return (
     <div className="min-h-full flex flex-col bg-[#F8FAFC]">
-      <DashboardNav />
+      <div className="hidden md:block">
+        <DashboardNav />
+      </div>
 
       <main className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col gap-6 px-4 py-8 pb-24 sm:px-6 sm:py-10 sm:pb-28 md:pb-10 lg:flex-row lg:items-start">
-        <DashboardSidebar />
+        <div className="hidden md:block">
+          <DashboardSidebar />
+        </div>
 
         <div className="min-w-0 flex-1">
           {upgraded ? (
@@ -543,6 +552,7 @@ export default async function DashboardPage({ searchParams }) {
                 </div>
                 <Link
                   href={baseSectionHref}
+                  scroll={false}
                   className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-sm font-semibold text-[#1E254A] transition hover:bg-white"
                 >
                   Close

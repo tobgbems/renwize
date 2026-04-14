@@ -18,7 +18,7 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
 
   useEffect(() => {
     function handleKeyDown(event) {
-      if (event.key === "Escape") router.push(closeHref);
+      if (event.key === "Escape") router.push(closeHref, { scroll: false });
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -29,7 +29,10 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
   const editHref = `/dashboard?section=${section}&modal=edit&id=${subscription.id}`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0F172A]/45" onClick={() => router.push(closeHref)}>
+    <div
+      className="fixed inset-0 z-50 bg-[#0F172A]/45"
+      onClick={() => router.push(closeHref, { scroll: false })}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -44,7 +47,7 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
           </div>
           <button
             type="button"
-            onClick={() => router.push(closeHref)}
+            onClick={() => router.push(closeHref, { scroll: false })}
             className="rounded-lg border border-white/30 bg-white/10 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/20"
           >
             X
@@ -94,6 +97,7 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
         <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-[#E2E8F0] bg-white px-5 py-4 md:px-6">
           <Link
             href={editHref}
+            scroll={false}
             className="inline-flex items-center justify-center rounded-lg bg-[#1FA168] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95"
           >
             Edit
