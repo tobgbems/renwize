@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import DashboardNav from "@/components/DashboardNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import BottomNav from "@/components/BottomNav";
 import DashboardGreeting from "@/components/DashboardGreeting";
 import DeleteSubscriptionButton from "@/components/DeleteSubscriptionButton";
 import ProfileSettingsForm from "@/components/ProfileSettingsForm";
@@ -231,7 +232,7 @@ export default async function DashboardPage({ searchParams }) {
     <div className="min-h-full flex flex-col bg-[#F8FAFC]">
       <DashboardNav />
 
-      <main className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-start">
+      <main className="mx-auto flex w-full max-w-[92rem] flex-1 flex-col gap-6 px-4 py-8 pb-24 sm:px-6 sm:py-10 sm:pb-28 md:pb-10 lg:flex-row lg:items-start">
         <DashboardSidebar />
 
         <div className="min-w-0 flex-1">
@@ -504,6 +505,7 @@ export default async function DashboardPage({ searchParams }) {
           </div>
         ) : null}
       </main>
+      <BottomNav />
     </div>
   );
 }
