@@ -25,7 +25,8 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Fix:** In Supabase → **Project Settings → API**, copy **`service_role`** (secret) into **`SUPABASE_SERVICE_ROLE_KEY`** on Vercel (or your host), not the anon `public` key. Match **`NEXT_PUBLIC_SUPABASE_URL`** to the same project. **Redeploy** after changing env vars.
 - **Verify data:** See commented queries at the bottom of `enable_rls_users_subscriptions.sql`.
 - **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
-- **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, emails users via Resend.
+- **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, sends email reminders via Resend, and sends SMS/WhatsApp reminders via Termii for Pro users with a phone number.
+- **`lib/termii.js`** — Termii messaging helpers (`sendSMS`, `sendWhatsApp`) for reminder delivery channels.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
 - **`app/api/cron/send-reminders/route.js`** — `GET`, protected by `Authorization: Bearer CRON_SECRET`; calls `sendBillingReminders()`.
 - **`vercel.json`** — Daily cron at 08:00 UTC → `/api/cron/send-reminders` (Vercel sends `Bearer` when `CRON_SECRET` is set in project env).
@@ -46,10 +47,10 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Edit from details modal:** Link directly to dashboard modal query state (`/dashboard?section=...&modal=edit&id=...`) to avoid a double-navigation flash via legacy `/dashboard/edit/[id]` redirects.
 - **Date inputs:** Subscription forms use native `type="date"` with `min=today` (no past dates).
 
-## Email reminders (Resend + cron)
+## Reminder channels (Resend + Termii + cron)
 
-- **Env:** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CRON_SECRET` (plus existing Supabase vars). See Resend docs for free-tier limits (verified recipients / verified domain).
-- **Logic:** One email per matching subscription row; amount formatting uses `lib/subscriptionDisplay.js` (`formatMoney`, `formatDate`).
+- **Env:** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CRON_SECRET`, `TERMII_API_KEY`, `TERMII_SENDER_ID` (plus existing Supabase vars). See Resend docs for free-tier limits (verified recipients / verified domain).
+- **Logic:** One email per matching subscription row; for users who are Pro and have `phone_number`, also attempt SMS + WhatsApp reminders via Termii. Amount formatting uses `lib/subscriptionDisplay.js` (`formatMoney`, `formatDate`).
 - **Cancel reminder flag:** If `subscriptions.remind_to_cancel` is true, reminder emails must include cancel guidance text.
 
 ## What not to touch without explicit instruction

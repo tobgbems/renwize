@@ -81,9 +81,6 @@ export default function PricingSection() {
 
         {/* Pro — Sea Green */}
         <article className="relative flex flex-col overflow-hidden rounded-2xl bg-[#1FA168] p-8 text-white shadow-[0_24px_60px_-12px_rgba(31,161,104,0.45)] ring-1 ring-white/20">
-          <div className="absolute right-4 top-4 rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">
-            Coming soon
-          </div>
           <p className="text-sm font-bold uppercase tracking-wide text-white/90">Pro</p>
           <p className="mt-4 flex items-baseline gap-1">
             <span className="text-5xl font-bold">
@@ -96,7 +93,7 @@ export default function PricingSection() {
           {billing === "yearly" ? (
             <p className="mt-2 text-sm text-white/90">Billed annually — save vs paying monthly.</p>
           ) : (
-            <p className="mt-2 text-sm text-white/90">SMS + WhatsApp when we launch.</p>
+            <p className="mt-2 text-sm text-white/90">SMS + WhatsApp reminders are included on Pro.</p>
           )}
           <ul className="mt-6 flex-1 space-y-3 text-white/95">
             <li className="flex gap-2">
@@ -112,13 +109,16 @@ export default function PricingSection() {
               WhatsApp reminders
             </li>
           </ul>
-          <button
-            type="button"
-            disabled
-            className="mt-8 w-full cursor-not-allowed rounded-xl bg-white py-3 text-sm font-bold text-[#1FA168] opacity-90"
+          <Link
+            href={
+              billing === "yearly"
+                ? "/api/payments/initiate?billing=yearly"
+                : "/api/payments/initiate"
+            }
+            className="mt-8 block w-full rounded-xl bg-white py-3 text-center text-sm font-bold text-[#1FA168] transition hover:bg-[#ECFDF3]"
           >
-            Notify me when Pro launches
-          </button>
+            Upgrade to Pro
+          </Link>
         </article>
       </div>
     </section>

@@ -6,6 +6,8 @@ Renwize is a subscription reminder app built with:
 - Tailwind CSS
 - NextAuth.js v5
 - Supabase
+- Resend (email reminders)
+- Termii (SMS + WhatsApp reminders for Pro users)
 
 ## 1) Install and run
 
@@ -71,6 +73,13 @@ AUTH_URL=http://localhost:3000
 
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+CRON_SECRET=
+
+TERMII_API_KEY=
+TERMII_SENDER_ID=
 ```
 
 Generate `AUTH_SECRET` with:
