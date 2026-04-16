@@ -1,7 +1,11 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { isValidProChargeAmountKobo, proExpiresAtIsoFromAmountKobo } from "@/lib/proPricing";
+import {
+  isValidProChargeAmountKobo,
+  proExpiresAtIsoFromAmountKobo,
+  proPlanTypeFromPaystackTransaction,
+} from "@/lib/proPricing";
 
 export const runtime = "nodejs";
 
@@ -57,12 +61,15 @@ export async function POST(request) {
   }
 
   const proExpiresAt = proExpiresAtIsoFromAmountKobo(tx.amount);
+  const planType = proPlanTypeFromPaystackTransaction(tx);
   const supabase = getSupabaseAdmin();
   const { error: updateErr } = await supabase
     .from("users")
     .update({
       is_pro: true,
       pro_expires_at: proExpiresAt,
+      plan_type: planType,
+      cancel_at_period_end: false,
     })
     .eq("email", email);
 

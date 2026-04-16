@@ -6,6 +6,7 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import BottomNav from "@/components/BottomNav";
 import DashboardGreeting from "@/components/DashboardGreeting";
 import ProfileSettingsForm from "@/components/ProfileSettingsForm";
+import ManagePlanSection from "@/components/ManagePlanSection";
 import CardsSettingsPanel from "@/components/CardsSettingsPanel";
 import AddSubscriptionForm from "@/components/AddSubscriptionForm";
 import EditSubscriptionForm from "@/components/EditSubscriptionForm";
@@ -29,7 +30,7 @@ const BILLING_CYCLES = ["monthly", "yearly"];
 async function getUserByEmail(supabase, email) {
   const { data, error } = await supabase
     .from("users")
-    .select("id, is_pro, pro_expires_at, name, email, phone_number")
+    .select("id, is_pro, pro_expires_at, plan_type, cancel_at_period_end, name, email, phone_number")
     .eq("email", email.toLowerCase())
     .single();
   if (error || !data) return null;
@@ -197,12 +198,27 @@ export default async function DashboardPage({ searchParams }) {
   let profileEmail = email || "";
   let profilePhoneNumber = "";
   let cards = [];
+  /** Supabase user row for settings (Manage Plan); set when user exists. */
+  let settingsUserForPlan = null;
 
   if (email) {
     const supabase = getSupabaseAdmin();
-    const userRow = await getUserByEmail(supabase, email);
+    let userRow = await getUserByEmail(supabase, email);
 
     if (userRow?.id) {
+      if (userRow.is_pro && userRow.pro_expires_at != null && String(userRow.pro_expires_at).trim() !== "") {
+        const expiresMs = new Date(userRow.pro_expires_at).getTime();
+        if (!Number.isNaN(expiresMs) && expiresMs < Date.now()) {
+          const { error: expireErr } = await supabase
+            .from("users")
+            .update({ is_pro: false, plan_type: null })
+            .eq("id", userRow.id);
+          if (!expireErr) {
+            userRow = await getUserByEmail(supabase, email);
+          }
+        }
+      }
+
       isPro = Boolean(userRow.is_pro);
       profileName = userRow.name || profileName;
       profileEmail = userRow.email || profileEmail;
@@ -231,6 +247,8 @@ export default async function DashboardPage({ searchParams }) {
       } else {
         cards = cardsData || [];
       }
+
+      settingsUserForPlan = userRow;
     }
   }
 
@@ -519,6 +537,7 @@ export default async function DashboardPage({ searchParams }) {
                         email={profileEmail}
                       />
                     </div>
+                    <ManagePlanSection user={settingsUserForPlan} />
                   </div>
                 )}
               </div>

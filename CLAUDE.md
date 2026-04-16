@@ -12,6 +12,9 @@
 - **Edit from details modal:** Route Edit directly to `/dashboard?section=...&modal=edit&id=...` (not `/dashboard/edit/[id]`) to prevent an intermediate white-screen redirect hop.
 - **Subscription status:** `subscriptions.status` supports `active`/`paused` (default `active`). Paused subscriptions remain in DB but are excluded from dashboard totals, upcoming renewals, and reminder sends.
 - **Profile settings:** Name + phone are managed from dashboard settings using `components/ProfileSettingsForm.js` + `lib/actions/updateProfileSettings.js`.
+- **Manage Plan (Pro):** `components/ManagePlanSection.js` under `/dashboard?section=settings` (Profile tab). Uses `lib/actions/manageProPlan.js` (`cancelProPlan`, `reactivateProPlan`). Only visible when `users.is_pro` is true.
+- **Pro expiry:** `app/dashboard/page.js` clears expired Pro on load (`pro_expires_at` before now → `is_pro` false, `plan_type` null).
+- **Paystack Pro activation:** `app/api/payments/verify/route.js` and `app/api/payments/webhook/route.js` both set `is_pro`, `pro_expires_at`, `plan_type`, and `cancel_at_period_end: false`; plan type from `lib/proPricing.js` (`proPlanTypeFromPaystackTransaction`).
 - **Modal forms:** Never nest `<form>` elements in dashboard modals. For inline secondary actions (like add-card within add-subscription), use local component state and `type="button"` handlers.
 - **Subscription dates:** Keep native date picker with no past selection (`min=today`) for add/edit subscription forms.
 - **Cancel reminders:** `subscriptions.remind_to_cancel` should be reflected in both card badges and reminder email copy.

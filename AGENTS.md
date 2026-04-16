@@ -24,15 +24,20 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Symptom:** Logged in via NextAuth, greeting shows, but totals are $0 / 0 subscriptions and “No subscriptions match your current filters.” Session name comes from NextAuth; subscription data requires a `users` row from Supabase. If `SUPABASE_SERVICE_ROLE_KEY` is the **anon** key, RLS returns no rows (no query error).
 - **Fix:** In Supabase → **Project Settings → API**, copy **`service_role`** (secret) into **`SUPABASE_SERVICE_ROLE_KEY`** on Vercel (or your host), not the anon `public` key. Match **`NEXT_PUBLIC_SUPABASE_URL`** to the same project. **Redeploy** after changing env vars.
 - **Verify data:** See commented queries at the bottom of `enable_rls_users_subscriptions.sql`.
-- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `pauseSubscription`, `resumeSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
+- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `pauseSubscription`, `resumeSubscription`, `updateProfileSettings`, `cancelProPlan` / `reactivateProPlan` in `lib/actions/manageProPlan.js`) kept outside `app/` to reduce Turbopack HMR churn.
+- **`lib/proPricing.js`** — Pro Paystack amounts in kobo (`PRO_MONTHLY_NGN_KOBO`, `PRO_YEARLY_NGN_KOBO`), `proExpiresAtIsoFromAmountKobo`, `proPlanTypeFromPaystackTransaction` (uses `metadata.billing` from initialize when present, else `amount`).
+- **`app/api/payments/initiate/route.js`** — Starts Paystack checkout; optional `?billing=yearly`; passes `metadata.billing` and `metadata.plan`.
+- **`app/api/payments/verify/route.js`** — Paystack callback: verifies transaction, sets `users.is_pro`, `pro_expires_at`, `plan_type`, `cancel_at_period_end: false` by email.
+- **`app/api/payments/webhook/route.js`** — `charge.success`: same user fields as verify (mirror), match by `customer.email`.
 - **`lib/reminders.js`** — Vercel Cron: loads **active** subscriptions with `next_billing_date` = UTC today + 3 days, sends email reminders via Resend, and sends SMS/WhatsApp reminders via Termii for Pro users with a phone number.
 - **`lib/termii.js`** — Termii messaging helpers (`sendSMS`, `sendWhatsApp`) for reminder delivery channels.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
 - **`app/api/cron/send-reminders/route.js`** — `GET`, protected by `Authorization: Bearer CRON_SECRET`; calls `sendBillingReminders()`.
 - **`vercel.json`** — Daily cron at 08:00 UTC → `/api/cron/send-reminders` (Vercel sends `Bearer` when `CRON_SECRET` is set in project env).
-- **`app/dashboard/page.js`** — Primary dashboard route; section-driven UI via query params.
+- **`app/dashboard/page.js`** — Primary dashboard route; section-driven UI via query params. On load, if `users.is_pro` and `pro_expires_at` is in the past, clears Pro (`is_pro: false`, `plan_type: null`). Settings → Profile renders `ProfileSettingsForm` then `ManagePlanSection` for Pro users.
 - **`components/DashboardSidebar.js`** — Sidebar tabs for `overview`, `subscriptions`, `settings`.
 - **`components/ProfileSettingsForm.js`** — Profile settings UI (name + phone number).
+- **`components/ManagePlanSection.js`** — Pro-only “Your Plan” on settings (Profile tab): plan badge from `users.plan_type`, access-until date, cancel with confirm (`cancelProPlan`), reactivate (`reactivateProPlan`), yearly upgrade link to `/api/payments/initiate?billing=yearly` when on monthly.
 - **`app/dashboard/add/page.js`** and **`app/dashboard/edit/[id]/page.js`** — legacy deep links that redirect to modal URLs on dashboard.
 
 ## Conventions
@@ -47,6 +52,13 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Edit from details modal:** Link directly to dashboard modal query state (`/dashboard?section=...&modal=edit&id=...`) to avoid a double-navigation flash via legacy `/dashboard/edit/[id]` redirects.
 - **Date inputs:** Subscription forms use native `type="date"` with `min=today` (no past dates).
 - **Subscription status:** `subscriptions.status` supports `active` and `paused` (default `active`). Paused subscriptions stay stored but are excluded from spend totals, upcoming renewals, and cron reminders.
+- **Pro / `users` billing fields:** `is_pro`, `pro_expires_at`, `plan_type` (`monthly` / `yearly` / null), `cancel_at_period_end` (boolean). Paystack **verify** and **webhook** `charge.success` both set `plan_type` from `proPlanTypeFromPaystackTransaction` and reset `cancel_at_period_end` to `false` on successful payment. “Manage Plan” is only shown when `is_pro` is true (free users use existing upgrade CTAs). If those columns are missing in Supabase, run in SQL Editor:
+
+```sql
+ALTER TABLE public.users
+ADD COLUMN IF NOT EXISTS cancel_at_period_end boolean NOT NULL DEFAULT false,
+ADD COLUMN IF NOT EXISTS plan_type text CHECK (plan_type IN ('monthly', 'yearly'));
+```
 
 ## Reminder channels (Resend + Termii + cron)
 

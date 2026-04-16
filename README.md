@@ -80,6 +80,9 @@ CRON_SECRET=
 
 TERMII_API_KEY=
 TERMII_SENDER_ID=
+
+PAYSTACK_SECRET_KEY=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 Generate `AUTH_SECRET` with:
@@ -87,6 +90,8 @@ Generate `AUTH_SECRET` with:
 ```bash
 npx auth secret
 ```
+
+**Pro / Paystack:** Checkout uses `/api/payments/initiate` (callback `/api/payments/verify`, webhook `/api/payments/webhook`). Pro users can manage plan intent (cancel at period end / reactivate) from **Dashboard → Settings → Profile** (`ManagePlanSection`). Older Supabase projects may need `users.plan_type` and `users.cancel_at_period_end` added in the SQL Editor; see [`AGENTS.md`](AGENTS.md) for field behavior.
 
 ## 5) Routes included in Stage 1
 
