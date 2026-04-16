@@ -126,12 +126,23 @@ function SubscriptionCards({ subscriptions, section }) {
           scroll={false}
           className="group"
         >
-          <article className="flex min-w-0 flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition group-hover:border-[#1FA168]/30 group-hover:shadow-md">
+          <article
+            className={`flex min-w-0 flex-col rounded-2xl border p-5 shadow-sm transition group-hover:border-[#1FA168]/30 group-hover:shadow-md ${
+              s.status === "paused"
+                ? "border-slate-200 bg-slate-50/80 opacity-65"
+                : "border-[#E2E8F0] bg-white"
+            }`}
+          >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <h3 className="min-w-0 flex-1 truncate text-base font-bold text-[#1E254A]" title={s.name}>
                 {s.name}
               </h3>
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                {s.status === "paused" ? (
+                  <span className="inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-300">
+                    Paused
+                  </span>
+                ) : null}
                 {s.remind_to_cancel ? (
                   <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-900 ring-1 ring-amber-200">
                     Remind to cancel
@@ -223,13 +234,14 @@ export default async function DashboardPage({ searchParams }) {
     }
   }
 
-  const monthlyByCur = sumByCurrency(subscriptions, "monthly");
-  const yearlyByCur = sumByCurrency(subscriptions, "yearly");
-  const activeCount = subscriptions.length;
+  const activeSubscriptions = subscriptions.filter((s) => (s.status || "active") === "active");
+  const monthlyByCur = sumByCurrency(activeSubscriptions, "monthly");
+  const yearlyByCur = sumByCurrency(activeSubscriptions, "yearly");
+  const activeCount = activeSubscriptions.length;
   const currencies = [...new Set(subscriptions.map((s) => (s.currency || "USD").toUpperCase()))].sort();
 
   // Renewals in the next 7 days (inclusive of today through +7 calendar days)
-  const upcoming = subscriptions
+  const upcoming = activeSubscriptions
     .filter((s) => {
       const d = daysFromToday(s.next_billing_date);
       return d >= 0 && d <= 7;
@@ -533,6 +545,7 @@ export default async function DashboardPage({ searchParams }) {
             subscription={detailSubscription}
             closeHref={baseSectionHref}
             section={section}
+            userEmail={profileEmail}
           />
         ) : null}
 

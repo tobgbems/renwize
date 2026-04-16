@@ -24,8 +24,8 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Symptom:** Logged in via NextAuth, greeting shows, but totals are $0 / 0 subscriptions and “No subscriptions match your current filters.” Session name comes from NextAuth; subscription data requires a `users` row from Supabase. If `SUPABASE_SERVICE_ROLE_KEY` is the **anon** key, RLS returns no rows (no query error).
 - **Fix:** In Supabase → **Project Settings → API**, copy **`service_role`** (secret) into **`SUPABASE_SERVICE_ROLE_KEY`** on Vercel (or your host), not the anon `public` key. Match **`NEXT_PUBLIC_SUPABASE_URL`** to the same project. **Redeploy** after changing env vars.
 - **Verify data:** See commented queries at the bottom of `enable_rls_users_subscriptions.sql`.
-- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
-- **`lib/reminders.js`** — Vercel Cron: loads subscriptions with `next_billing_date` = UTC today + 3 days, sends email reminders via Resend, and sends SMS/WhatsApp reminders via Termii for Pro users with a phone number.
+- **`lib/actions/`** — Server actions (`createSubscription`, `updateSubscription`, `pauseSubscription`, `resumeSubscription`, `updateProfileSettings`) kept outside `app/` to reduce Turbopack HMR churn.
+- **`lib/reminders.js`** — Vercel Cron: loads **active** subscriptions with `next_billing_date` = UTC today + 3 days, sends email reminders via Resend, and sends SMS/WhatsApp reminders via Termii for Pro users with a phone number.
 - **`lib/termii.js`** — Termii messaging helpers (`sendSMS`, `sendWhatsApp`) for reminder delivery channels.
 - **`lib/emailTemplate.js`** — HTML for renewal reminder emails (branded, inline CSS).
 - **`app/api/cron/send-reminders/route.js`** — `GET`, protected by `Authorization: Bearer CRON_SECRET`; calls `sendBillingReminders()`.
@@ -46,11 +46,12 @@ Renwize is a subscription tracking app (Next.js App Router, JavaScript only, Tai
 - **Subscription add/edit UX:** Use dashboard modals (`modal=add`, `modal=edit&id=...`) instead of standalone add/edit pages.
 - **Edit from details modal:** Link directly to dashboard modal query state (`/dashboard?section=...&modal=edit&id=...`) to avoid a double-navigation flash via legacy `/dashboard/edit/[id]` redirects.
 - **Date inputs:** Subscription forms use native `type="date"` with `min=today` (no past dates).
+- **Subscription status:** `subscriptions.status` supports `active` and `paused` (default `active`). Paused subscriptions stay stored but are excluded from spend totals, upcoming renewals, and cron reminders.
 
 ## Reminder channels (Resend + Termii + cron)
 
 - **Env:** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CRON_SECRET`, `TERMII_API_KEY`, `TERMII_SENDER_ID` (plus existing Supabase vars). See Resend docs for free-tier limits (verified recipients / verified domain).
-- **Logic:** One email per matching subscription row; for users who are Pro and have `phone_number`, also attempt SMS + WhatsApp reminders via Termii. Amount formatting uses `lib/subscriptionDisplay.js` (`formatMoney`, `formatDate`).
+- **Logic:** One email per matching **active** subscription row; for users who are Pro and have `phone_number`, also attempt SMS + WhatsApp reminders via Termii. Amount formatting uses `lib/subscriptionDisplay.js` (`formatMoney`, `formatDate`).
 - **Cancel reminder flag:** If `subscriptions.remind_to_cancel` is true, reminder emails must include cancel guidance text.
 
 ## What not to touch without explicit instruction

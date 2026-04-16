@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DeleteSubscriptionButton from "@/components/DeleteSubscriptionButton";
+import { pauseSubscription, resumeSubscription } from "@/lib/actions/updateSubscription";
 import { formatMoney, billingCycleLabel, formatDate, formatCategoryLabel } from "@/lib/subscriptionDisplay";
 
 function renderCardInfo(card) {
@@ -13,8 +14,15 @@ function renderCardInfo(card) {
   return bits.join(" \u00b7 ");
 }
 
-export default function SubscriptionDetailModal({ subscription, closeHref, section = "subscriptions" }) {
+export default function SubscriptionDetailModal({
+  subscription,
+  closeHref,
+  section = "subscriptions",
+  userEmail = "",
+}) {
   const router = useRouter();
+  const [actionError, setActionError] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -27,6 +35,23 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
   if (!subscription) return null;
 
   const editHref = `/dashboard?section=${section}&modal=edit&id=${subscription.id}`;
+  const isPaused = subscription.status === "paused";
+
+  function handleTogglePause() {
+    setActionError(null);
+    startTransition(async () => {
+      const result = isPaused
+        ? await resumeSubscription(subscription.id, userEmail)
+        : await pauseSubscription(subscription.id, userEmail);
+
+      if (result?.error) {
+        setActionError(result.error);
+        return;
+      }
+
+      router.refresh();
+    });
+  }
 
   return (
     <div
@@ -55,6 +80,14 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
         </div>
 
         <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
+          {actionError ? (
+            <div
+              className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm font-medium text-[#E8203B]"
+              role="alert"
+            >
+              {actionError}
+            </div>
+          ) : null}
           <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-[#64748B]">Amount</p>
             <p className="mt-1 text-3xl font-bold text-[#1E254A]">
@@ -85,6 +118,12 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
               <dt className="text-[#64748B]">Card</dt>
               <dd className="text-right font-semibold text-[#1E254A]">{renderCardInfo(subscription.cards)}</dd>
             </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#64748B]">Status</dt>
+              <dd className="text-right font-semibold text-[#1E254A]">
+                {isPaused ? "Paused" : "Active"}
+              </dd>
+            </div>
             <div className="flex flex-col gap-1 border-t border-[#F1F5F9] pt-3">
               <dt className="text-[#64748B]">Notes</dt>
               <dd className="whitespace-pre-wrap text-[#1E254A]">
@@ -102,6 +141,24 @@ export default function SubscriptionDetailModal({ subscription, closeHref, secti
           >
             Edit
           </Link>
+          <button
+            type="button"
+            onClick={handleTogglePause}
+            disabled={isPending}
+            className={`inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              isPaused
+                ? "border-[#1FA168] bg-[#1FA168] text-white hover:opacity-95"
+                : "border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            {isPending
+              ? isPaused
+                ? "Resuming..."
+                : "Pausing..."
+              : isPaused
+                ? "Resume subscription"
+                : "Pause subscription"}
+          </button>
           <DeleteSubscriptionButton subscriptionId={subscription.id} subscriptionName={subscription.name} />
         </div>
       </div>
